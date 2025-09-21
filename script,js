@@ -6,5 +6,6 @@ window.addEventListener('load', () => {
 
   setTimeout(() => {
     mensaje.style.opacity = 0;
-  }, 6000); // se desvanece después de 5 segundos
+  }, 18000); // se desvanece después de 5 segundos
+
 });
