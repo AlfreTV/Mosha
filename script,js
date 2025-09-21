@@ -1,0 +1,10 @@
+window.addEventListener('load', () => {
+  const mensaje = document.getElementById('mensajeBienvenida');
+  setTimeout(() => {
+    mensaje.style.opacity = 1;
+  }, 1000); // aparece 1 segundo después
+
+  setTimeout(() => {
+    mensaje.style.opacity = 0;
+  }, 6000); // se desvanece después de 5 segundos
+});

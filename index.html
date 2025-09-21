@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Para ti mosha</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #fff8dc;
+      touch-action: none;
+    }
+    canvas {
+      display: block;
+    }
+
+    #mensajeBienvenida {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff8dc;
+  padding: 20px 30px;
+  border-radius: 12px;
+  font-size: 20px;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 2s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+  </style>
+</head>
+<body>
+    
+  <canvas id="canvas"></canvas>
+  <div id="mensajeBienvenida">Ella es Bonita, es bajita, tiene unos ojos preciosos, un cabello hermoso y una sonrisa encantadora. Que este dia de las flores amarillas te traiga tanta felicidad como la que tu me das. Espero que estas flores virtuales puedan transmitir aunque sea una fracción del cario que siento por ti.</div>
+
+
+  <script src="./script,js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const estrellas = [];
+
+function crearEstrellas(cantidad = 100) {
+  for (let i = 0; i < cantidad; i++) {
+    estrellas.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 1.5 + 0.5,
+      alpha: Math.random(),
+      speed: Math.random() * 0.3 + 0.1
+    });
+  }
+}
+
+let estrellaFugaz = null;
+
+function crearEstrellaFugaz(x, y) {
+  const palabraSecreta = 'vales mucho'; //palabra
+  estrellaFugaz = {
+    x,
+    y,
+    vx: 5,
+    vy: -3,
+    alpha: 1,
+    palabra: palabraSecreta,
+    activa: true
+  };
+}
+
+function actualizarEstrellas() {
+  estrellas.forEach(e => {
+    e.alpha += (Math.random() - 0.5) * 0.02;
+    e.alpha = Math.max(0.1, Math.min(1, e.alpha));
+    e.x += Math.sin(pointer.x * 0.001) * e.speed;
+    e.y += Math.cos(pointer.y * 0.001) * e.speed;
+
+    // Reposiciona si salen del canvas
+    if (e.x < 0) e.x = canvas.width;
+    if (e.x > canvas.width) e.x = 0;
+    if (e.y < 0) e.y = canvas.height;
+    if (e.y > canvas.height) e.y = 0;
+  });
+}
+
+function dibujarEstrellas() {
+  ctx.fillStyle = '#0d1b2a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  estrellas.forEach(e => {
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255, 255, 255, ${e.alpha})`;
+    ctx.arc(e.x, e.y, e.size, 0, 2 * Math.PI);
+    ctx.fill();
+  });
+}
+
+function esToqueEnFondo(x, y) {
+  return !girasoles.some(g => {
+    const dx = x - g.centerX;
+    const dy = y - g.centerY;
+    return Math.sqrt(dx * dx + dy * dy) < g.radius;
+  });
+}
+
+canvas.addEventListener('click', e => {
+  if (esToqueEnFondo(e.clientX, e.clientY)) {
+    crearEstrellaFugaz(e.clientX, e.clientY);
+  }
+});
+
+window.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  if (esToqueEnFondo(t.clientX, t.clientY)) {
+    crearEstrellaFugaz(t.clientX, t.clientY);
+  }
+});
+
+function dibujarEstrellaFugaz() {
+  if (estrellaFugaz && estrellaFugaz.activa) {
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(255, 255, 255, ${estrellaFugaz.alpha})`;
+    ctx.lineWidth = 2;
+    ctx.moveTo(estrellaFugaz.x, estrellaFugaz.y);
+    ctx.lineTo(estrellaFugaz.x - 20, estrellaFugaz.y + 12);
+    ctx.stroke();
+
+    estrellaFugaz.x += estrellaFugaz.vx;
+    estrellaFugaz.y += estrellaFugaz.vy;
+    estrellaFugaz.alpha -= 0.02;
+
+    if (estrellaFugaz.alpha <= 0) {
+      estrellaFugaz.activa = false;
+    }
+  } else if (estrellaFugaz && !estrellaFugaz.activa) {
+    ctx.font = 'italic 20px Segoe UI';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.fillText(estrellaFugaz.palabra, estrellaFugaz.x, estrellaFugaz.y);
+  }
+}
+
+    let pointer = { x: canvas.width / 2, y: canvas.height / 2 };
+
+    function updatePointer(x, y) {
+      pointer.x = x;
+      pointer.y = y;
+    }
+
+    window.addEventListener('mousemove', e => updatePointer(e.clientX, e.clientY));
+    window.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      updatePointer(t.clientX, t.clientY);
+      checkClick(t.clientX, t.clientY);
+    });
+    window.addEventListener('touchmove', e => {
+      const t = e.touches[0];
+      updatePointer(t.clientX, t.clientY);
+    });
+    canvas.addEventListener('click', e => checkClick(e.clientX, e.clientY));
+
+    const palabras = ['Bonita', 'Determinación', 'Inspiras', 'Creativa', 'calida', 'Amor', 'Hermosa', 'Brillas', 'sol'];
+    let palabraIndex = 0;
+
+    class Girasol {
+      constructor(x) {
+        this.baseX = x;
+        this.y = canvas.height;
+        this.stemHeight = 0;
+        this.maxStem = Math.random() * 100 + 100;
+        this.size = Math.random() * 20 + 20;
+        this.growthSpeed = Math.random() * 1.5 + 0.5;
+        this.petalCount = 12;
+        this.depth = Math.random();
+        this.revealed = false;
+        this.word = '';
+
+        this.exploding = false;
+        this.particles = [];
+        this.explodeTimer = 0;
+    }
+    
+    // Nuevos métodos dentro de la clase Girasol
+    createExplosion() {
+        const count = 30;
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * 2 * Math.PI;
+            const speed = Math.random() * 2 + 1;
+            this.particles.push({
+                x: this.centerX,
+                y: this.centerY - this.radius - 10,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                alpha: 1
+            });
+        }
+        this.word = ''; // Oculta la palabra
+        }
+
+updateParticles() {
+  this.particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= 0.02;
+  });
+  this.particles = this.particles.filter(p => p.alpha > 0);
+
+  this.particles.forEach(p => {
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255, 215, 0, ${p.alpha})`; // naranja fuego
+    ctx.arc(p.x, p.y, 3, 0, 2 * Math.PI);
+    ctx.fill();
+  });
+}
+
+
+      drawStem() {
+        const topY = canvas.height - this.stemHeight;
+        const sway = (pointer.x - this.baseX) * 0.02;
+        const controlX = this.baseX + sway;
+
+        ctx.beginPath();
+        ctx.strokeStyle = '#388e3c';
+        ctx.lineWidth = 4;
+        ctx.moveTo(this.baseX, canvas.height);
+        ctx.quadraticCurveTo(controlX, (canvas.height + topY) / 2, this.baseX + sway, topY);
+        ctx.stroke();
+      }
+
+      drawFlower() {
+        const centerY = canvas.height - this.stemHeight;
+        const sway = (pointer.x - this.baseX) * 0.02;
+        const centerX = this.baseX + sway;
+        const radius = this.size * (0.8 + this.depth * 0.4);
+
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
+
+        ctx.shadowColor = 'rgba(0,0,0,0.2)';
+        ctx.shadowBlur = 10;
+
+        const dx = pointer.x - centerX;
+        const dy = pointer.y - centerY;
+        const angleToPointer = Math.atan2(dy, dx);
+
+        for (let i = 0; i < this.petalCount; i++) {
+          const angle = angleToPointer + (2 * Math.PI / this.petalCount) * i;
+          const petalX = centerX + Math.cos(angle) * radius;
+          const petalY = centerY + Math.sin(angle) * radius * 0.7;
+          ctx.beginPath();
+          ctx.fillStyle = '#fdd835';
+          ctx.ellipse(petalX, petalY, radius / 3, radius / 5, angle, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.fillStyle = '#6d4c41';
+        ctx.arc(centerX, centerY, radius / 2.5, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        if (this.revealed && this.word) {
+          ctx.font = 'bold 18px Segoe UI';
+          ctx.fillStyle = '#ffff';
+          ctx.textAlign = 'center';
+          ctx.fillText(this.word, centerX, centerY - radius - 10);
+        }
+      }
+
+      update() {
+        if (this.stemHeight < this.maxStem) {
+  this.stemHeight += this.growthSpeed;
+}
+this.drawStem();
+this.drawFlower();
+
+if (this.revealed && !this.exploding && Date.now() > this.explodeTimer) {
+  this.exploding = true;
+  this.createExplosion();
+}
+
+if (this.exploding) {
+  this.updateParticles();
+}
+
+      }
+
+      checkTouch(x, y) {
+        const dx = x - this.centerX;
+        const dy = y - this.centerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < this.radius && !this.revealed) {
+            this.revealed = true;
+            this.word = palabras[palabraIndex % palabras.length];
+            palabraIndex++;
+            this.explodeTimer = Date.now() + 2000; // 2 segundos antes de explotar
+}
+
+        if (dist < this.radius) {
+          this.revealed = true;
+          this.word = palabras[palabraIndex % palabras.length];
+          palabraIndex++;
+        }
+      }
+    }
+
+    const girasoles = [];
+    const MAX_GIRASOLES = 50;
+    
+    function spawnGirasol() {
+        const x = Math.random() * canvas.width;
+        if (girasoles.length >= MAX_GIRASOLES) {
+            girasoles.shift(); // Elimina el más viejo
+            }
+            girasoles.push(new Girasol(x));
+        }
+
+
+
+    setInterval(spawnGirasol, 1000);
+
+    function checkClick(x, y) {
+      girasoles.forEach(g => g.checkTouch(x, y));
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      girasoles.forEach(g => g.update());
+      requestAnimationFrame(animate);
+    }
+
+
+    function animate() {
+        actualizarEstrellas();
+        dibujarEstrellas();
+        dibujarEstrellaFugaz();
+        girasoles.forEach(g => g.update());
+        requestAnimationFrame(animate);
+    }
+
+
+    animate();
+    crearEstrellas();
+  </script>
+</body>
+</html>
